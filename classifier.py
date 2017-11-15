@@ -270,15 +270,14 @@ if __name__ == "__main__":
             print(metrics)
 
             if count == 0:
-                joblib.dump(grid, ("grid-{0}.pkl").format(score))
+                joblib.dump(grid, ("grid-{0}-{1}.pkl").format(score, count + 1))
             elif score > metrics['score_f_sel_bopt_cv'].max():
                 previous = glob.glob('grid*.pkl')
-                print('previous')
                 try:
                     os.remove(previous)
                 except OSError:
                     pass
-                joblib.dump(grid, ("grid-{0}.pkl").format(score))
+                joblib.dump(grid, ("grid-{0}-{1}.pkl").format(score, count+1))
 
             if count%10 == 0:
                 metrics.to_csv("metrics.csv", columns=metrics_dict.keys(), index=False)
