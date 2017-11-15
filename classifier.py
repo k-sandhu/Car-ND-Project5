@@ -126,13 +126,13 @@ def bopt(svc_base, X_train, y_train, cv, n_calls, n_random_starts, n_points):
 if __name__ == "__main__":
     # Reduce the sample size because HOG features are slow to compute
     # The quiz evaluator times out after 13s of CPU time
-    sample_size = 500
+    sample_size = None
+    max_count = None
 
-    n_calls = 2
-    n_random_starts = 1
-    n_points = 100
-    cv=2
-    max_count = 5
+    n_calls = 40
+    n_random_starts = 20
+    n_points = 1000
+    cv=25
 
     colorspace_options = ['RGB', 'HSV', 'LUV', 'HLS', 'YUV', 'YCrCb']
     hog_channel_options = [0, 1, 2, 'ALL']
@@ -266,7 +266,6 @@ if __name__ == "__main__":
 
             metrics_dict['score_f_sel_bopt_cv'] = round(score, 6)
 
-            print(metrics_dict)
             metrics = metrics.append(metrics_dict, ignore_index=True)
             print(metrics)
 
