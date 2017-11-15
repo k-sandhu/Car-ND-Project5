@@ -252,7 +252,7 @@ if __name__ == "__main__":
             pipe = Pipeline(estimators)
 
             params = {}
-            grid = GridSearchCV(pipe, params, cv=cv, verbose=1, scoring='accuracy', refit=True)
+            grid = GridSearchCV(pipe, params, cv=cv, verbose=1, scoring='accuracy', refit=True, n_jobs=-1)
             grid.fit(X_train, y_train)
             t2 = time.time()
             time_train_cv = round(t2 - t, 2)
