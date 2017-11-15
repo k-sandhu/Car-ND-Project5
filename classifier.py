@@ -155,7 +155,10 @@ if __name__ == "__main__":
 
     count = 0
     for cspace in colorspace_options:
-        for hog_channel in hog_channel_options:
+        hog_channel = 'ALL'
+        #for hog_channel in hog_channel_options:
+        if hog_channel is 'ALL':
+
             if max_count is not None and max_count == count:
                 break
 
