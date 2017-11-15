@@ -132,7 +132,7 @@ if __name__ == "__main__":
     n_random_starts = 1
     n_points = 100
     cv=2
-    max_count = 1
+    max_count = 5
 
     colorspace_options = ['RGB', 'HSV', 'LUV', 'HLS', 'YUV', 'YCrCb']
     hog_channel_options = [0, 1, 2, 'ALL']
@@ -147,7 +147,8 @@ if __name__ == "__main__":
                                     'time_train_base', 'time_predict_base', 'score_base',
                                     'time_train_base_f_sel', 'time_predict_base_f_sel', 'score_base_f_sel', 'feature_mask', 'num_features', 'bopt_param'
                                     'time_train_f_sel_bopt', 'time_predict_f_sel_bopt', 'score_f_sel_bopt',
-                                    'time_train_cv', 'time_predict_cv', 'score_f_sel_bopt_cv']
+                                    'time_train_cv', 'time_predict_cv', 'score_f_sel_bopt_cv',
+                    'n_calls', 'n_random_starts', 'n_points', 'cv', 'orient', 'pix_per_cell', 'cell_per_block']
 
     metrics_dict = {k:None for k in metrics_list}
     metrics = pd.DataFrame(columns=metrics_list)#, index=[0])
@@ -157,7 +158,17 @@ if __name__ == "__main__":
         for hog_channel in hog_channel_options:
             if max_count is not None and max_count == count:
                 break
+
             metrics_dict['index'] = count+1
+            metrics_dict['n_calls'] = n_calls
+            metrics_dict['n_random_starts'] = n_random_starts
+            metrics_dict['n_points'] = n_points
+            metrics_dict['cv'] = cv
+
+            metrics_dict['orient'] = orient
+            metrics_dict['pix_per_cell'] = pix_per_cell
+            metrics_dict['cell_per_block'] = cell_per_block
+
             metrics_dict['cspace'] = cspace
             metrics_dict['hog_channel'] = hog_channel
 
@@ -173,7 +184,6 @@ if __name__ == "__main__":
             f_vec_len = len(X_train[0])
             print('Feature vector length:', f_vec_len)
             metrics_dict['f_vec_len'] = f_vec_len
-
 
             ######## Train and time base model ##################################
             t = time.time()
@@ -260,9 +270,19 @@ if __name__ == "__main__":
             metrics = metrics.append(metrics_dict, ignore_index=True)
             print(metrics)
 
-            joblib.dump(grid, "grid.pkl")
-            #if count%10 == 0:
-            metrics.to_csv("metrics.csv", columns=metrics_dict.keys(), index=False)
+            if count == 0:
+                joblib.dump(grid, ("grid-{0}.pkl").format(score))
+            elif score > metrics['score_f_sel_bopt_cv'].max():
+                previous = glob.glob('grid*.pkl')
+                print('previous')
+                try:
+                    os.remove(previous)
+                except OSError:
+                    pass
+                joblib.dump(grid, ("grid-{0}.pkl").format(score))
+
+            if count%10 == 0:
+                metrics.to_csv("metrics.csv", columns=metrics_dict.keys(), index=False)
 
             count+=1
 
