@@ -253,7 +253,7 @@ if __name__ == "__main__":
             print(metrics_dict)
             metrics = metrics.append(metrics_dict, ignore_index=True)
             print(metrics)
-            metrics.to_csv("metrics.csv", columns=metrics_dict.keys())
+            metrics.to_csv("metrics.csv", columns=metrics_dict.keys(), index=False)
 
             count+=1
 
