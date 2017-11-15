@@ -15,7 +15,7 @@ from sklearn.pipeline import Pipeline
 import pandas as pd
 from utils import *
 
-def get_data():
+def get_data(sample_size):
     # Divide up into cars and notcars
     images = glob.glob('./data/train/**/*.png', recursive=True)
     cars = []
@@ -126,7 +126,7 @@ def bopt(svc_base, X_train, y_train, cv, n_calls, n_random_starts, n_points):
 if __name__ == "__main__":
     # Reduce the sample size because HOG features are slow to compute
     # The quiz evaluator times out after 13s of CPU time
-    sample_size = None
+    sample_size = 0
     max_count = None
 
     n_calls = 40
@@ -141,7 +141,7 @@ if __name__ == "__main__":
     pix_per_cell = 8
     cell_per_block = 4
 
-    cars, notcars = get_data()
+    cars, notcars = get_data(sample_size)
 
     metrics_list = ['index', 'cspace', 'hog_channel', 'time_hog', 'f_vec_len',
                                     'time_train_base', 'time_predict_base', 'score_base',
