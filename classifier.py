@@ -13,6 +13,7 @@ from skimage.feature import hog
 from sklearn.feature_selection import SelectFromModel
 from sklearn.pipeline import Pipeline
 import pandas as pd
+from utils import *
 
 def get_data():
     # Divide up into cars and notcars
@@ -103,7 +104,7 @@ def extract_features(imgs, cspace='RGB', orient=9,
     # Return list of feature vectors
     return features
 
-def train_model(svc_base, X_train, y_train, cv, n_calls, n_random_starts, n_points):
+def bopt(svc_base, X_train, y_train, cv, n_calls, n_random_starts, n_points):
     def svc_base_objective(params):
         C, tol= params
 
@@ -130,7 +131,8 @@ if __name__ == "__main__":
     n_calls = 2
     n_random_starts = 1
     n_points = 100
-    cv=5
+    cv=2
+    max_count = 1
 
     colorspace_options = ['RGB', 'HSV', 'LUV', 'HLS', 'YUV', 'YCrCb']
     hog_channel_options = [0, 1, 2, 'ALL']
@@ -141,19 +143,19 @@ if __name__ == "__main__":
 
     cars, notcars = get_data()
 
-    metrics_dict = ['index', 'cspace', 'hog_channel', 'time_hog', 'f_vec_len',
+    metrics_list = ['index', 'cspace', 'hog_channel', 'time_hog', 'f_vec_len',
                                     'time_train_base', 'time_predict_base', 'score_base',
                                     'time_train_base_f_sel', 'time_predict_base_f_sel', 'score_base_f_sel', 'feature_mask', 'num_features', 'bopt_param'
                                     'time_train_f_sel_bopt', 'time_predict_f_sel_bopt', 'score_f_sel_bopt',
                                     'time_train_cv', 'time_predict_cv', 'score_f_sel_bopt_cv']
 
-    metrics_dict = {k:0 for k in metrics_dict}
-    metrics = pd.DataFrame(data=metrics_dict, index=[0])
+    metrics_dict = {k:None for k in metrics_list}
+    metrics = pd.DataFrame(columns=metrics_list)#, index=[0])
 
     count = 0
     for cspace in colorspace_options:
         for hog_channel in hog_channel_options:
-            if count == 1:
+            if max_count is not None and max_count == count:
                 break
             metrics_dict['index'] = count+1
             metrics_dict['cspace'] = cspace
@@ -207,7 +209,7 @@ if __name__ == "__main__":
             time_predict_base_f_sel = round(t2 - t, 2)
             metrics_dict['time_predict_base_f_sel'] = time_predict_base_f_sel
 
-            feature_mask = sfm.get_support()
+            feature_mask = sfm.get_support(indices=True)
             metrics_dict['score_base_f_sel'] = round(score, 6)
             metrics_dict['feature_mask_base'] = feature_mask
 
@@ -219,7 +221,7 @@ if __name__ == "__main__":
 
             ######## Train and time bopt after feature selection ##################################
             t = time.time()
-            svc.C, svc.tol = train_model(svc, X_train_reduced, y_train, cv, n_calls, n_random_starts, n_points)
+            svc.C, svc.tol = bopt(svc, X_train_reduced, y_train, cv, n_calls, n_random_starts, n_points)
             metrics_dict['bopt_param'] = [svc.C, svc.tol]
             svc.fit(X_train_reduced, y_train)
             t2 = time.time()
@@ -235,15 +237,19 @@ if __name__ == "__main__":
 
             ################# cv after bopt ########################
             t = time.time()
+
+            estimators = [('StandardScaler', X_scaler), ('SelectFromModel', sfm), ('LinearSVC', svc)]
+            pipe = Pipeline(estimators)
+
             params = {}
-            grid = GridSearchCV(svc, params, cv=cv, verbose=1, scoring='accuracy')
-            grid.fit(X_train_reduced, y_train)
+            grid = GridSearchCV(pipe, params, cv=cv, verbose=1, scoring='accuracy', refit=True)
+            grid.fit(X_train, y_train)
             t2 = time.time()
             time_train_cv = round(t2 - t, 2)
             metrics_dict['time_train_cv'] = time_train_cv
 
             t = time.time()
-            score = grid.score(sfm.transform(X_test), y_test)
+            score = grid.score(X_test, y_test)
             t2 = time.time()
             time_predict_cv = round(t2 - t, 2)
             metrics_dict['time_predict_cv'] = time_predict_cv
@@ -253,9 +259,11 @@ if __name__ == "__main__":
             print(metrics_dict)
             metrics = metrics.append(metrics_dict, ignore_index=True)
             print(metrics)
+
+            joblib.dump(grid, "grid.pkl")
+            #if count%10 == 0:
             metrics.to_csv("metrics.csv", columns=metrics_dict.keys(), index=False)
 
             count+=1
 
-            #estimators = [('StandardScaler', X_scaler), ('SelectFromModel', sfm), ('LinearSVC', svc)]
-            #pipe = Pipeline(estimators)
+    metrics.to_csv("metrics.csv", columns=metrics_dict.keys(), index=False)
