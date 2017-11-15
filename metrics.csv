@@ -1,0 +1,3 @@
+,time_train_cv,score_f_sel_bopt,time_train_bopt,hog_channel,time_predict_cv,bopt_paramtime_train_f_sel_bopt,time_train_base,cspace,time_hog,bopt_param,index,feature_mask_base,score_base_f_sel,time_predict_base_f_sel,score_base,score_f_sel_bopt_cv,f_vec_len,feature_mask,time_train_base_f_sel,time_predict_f_sel_bopt,time_predict_base,num_features
+0,0.0,0.0,,0,0.0,0,0.0,0,0.0,,0,,0.0,0.0,0.0,0.0,0,0,0.0,0.0,0.0,0
+1,3.02,0.94,14.39,0,0.02,0,1.66,RGB,1.98,"[5, 0.00076461211421485298]",1,"[False  True False ...,  True False  True]",0.94,0.02,0.94,0.94,3600,0,2.1,0.0,0.0,1424
