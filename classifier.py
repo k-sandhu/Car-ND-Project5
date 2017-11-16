@@ -127,13 +127,13 @@ def bopt(svc_base, X_train, y_train, cv, n_calls, n_random_starts, n_points):
 if __name__ == "__main__":
     # Reduce the sample size because HOG features are slow to compute
     # The quiz evaluator times out after 13s of CPU time
-    sample_size = 0
-    max_count = None
+    sample_size = 500
+    max_count = 1
 
     n_calls = 20
     n_random_starts = 10
     n_points = 100
-    cv=25
+    cv=20
 
     colorspace_options = ['RGB', 'HSV', 'LUV', 'HLS', 'YUV', 'YCrCb']
     hog_channel_options = [0, 1, 2, 'ALL']
@@ -237,13 +237,13 @@ if __name__ == "__main__":
             print('Base Linear SVC score after f selection is:', score)
 
             #BOpt without feature selection
-            t = time.time()
+            """t = time.time()
             svc.C, svc.tol = bopt(svc, X_train, y_train, cv, n_calls, n_random_starts, n_points)
             metrics_dict['bopt_param_nof'] = [svc.C, svc.tol]
             svc.fit(X_train, y_train)
             t2 = time.time()
             time_train_bopt = round(t2 - t, 2)
-            metrics_dict['time_train_bopt_nof'] = time_train_bopt_nof
+            metrics_dict['time_train_bopt_nof'] = time_train_bopt
 
             t = time.time()
             score = svc.score(X_test, y_test)
@@ -251,7 +251,7 @@ if __name__ == "__main__":
             time_predict_bopt_nof = round(t2 - t, 2)
             metrics_dict['time_predict_bopt_nof'] = time_predict_bopt_nof
             metrics_dict['score_bopt_nof'] = round(score, 6)
-
+"""
             ######## Train and time bopt after feature selection ##################################
             t = time.time()
             svc.C, svc.tol = bopt(svc, X_train_reduced, y_train, cv, n_calls, n_random_starts, n_points)
