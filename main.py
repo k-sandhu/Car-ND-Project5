@@ -29,7 +29,7 @@ def pipeline(image, cars, model, frame_num, heat_map='n'):
     locations = [] # list to track locations of cars
     car_num = 0
     count = 0
-
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     for box in reversed(boxes):
         section = image[box[1]:box[3],box[0]:box[2],:]
         section = misc.imresize(section, (64, 64, 3))
@@ -79,7 +79,6 @@ if __name__ == "__main__":
 
         # Call to main pipeline
         image = pipeline(image, cars, model, frame_num)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         timestamp = str(
             datetime.now().strftime('%Y_%m_%d_%H_%M_%S_%f')[:-3])  # save with timestamp and frame number as file name

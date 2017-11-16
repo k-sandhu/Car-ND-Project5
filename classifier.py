@@ -111,7 +111,6 @@ def bopt(svc_base, X_train, y_train, cv, n_calls, n_random_starts, n_points):
         svc_base.set_params(C=C, tol=tol)
         return -np.mean(cross_val_score(svc_base, X_train, y_train, cv=cv, n_jobs=-1, scoring="accuracy", verbose=2))
 
-    svc_base.verbose = False
     svc_space = [(1,6),            # C
                     (0.0001, 0.001)]          # tol
 
@@ -130,8 +129,8 @@ if __name__ == "__main__":
     sample_size = 0
     max_count = None
 
-    n_calls = 20
-    n_random_starts = 10
+    n_calls = 10
+    n_random_starts = 5
     n_points = 1000
     cv=20
 
@@ -274,8 +273,8 @@ if __name__ == "__main__":
             X_scaler = StandardScaler()
             svc = LinearSVC(verbose=True, max_iter=2000)
             sfm = SelectFromModel(svc)
-            X_train_reduced = sfm.fit_transform(X_train, y_train)
-            svc.C, svc.tol = bopt(svc, X_train_reduced, y_train, cv, n_calls, n_random_starts, n_points)
+            X_train_reduced = sfm.fit_transform(X, y)
+            svc.C, svc.tol = bopt(svc, X_reduced, y, cv, n_calls, n_random_starts, n_points)
             t = time.time()
 
             estimators = [('StandardScaler', X_scaler), ('SelectFromModel', sfm), ('LinearSVC', svc)]
