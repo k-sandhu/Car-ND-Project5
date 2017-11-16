@@ -148,7 +148,8 @@ if __name__ == "__main__":
                                     'time_train_base_f_sel', 'time_predict_base_f_sel', 'score_base_f_sel', 'feature_mask', 'num_features', 'bopt_param'
                                     'time_train_f_sel_bopt', 'time_predict_f_sel_bopt', 'score_f_sel_bopt',
                                     'time_train_cv', 'time_predict_cv', 'score_f_sel_bopt_cv',
-                    'n_calls', 'n_random_starts', 'n_points', 'cv', 'orient', 'pix_per_cell', 'cell_per_block']
+                    'n_calls', 'n_random_starts', 'n_points', 'cv', 'orient', 'pix_per_cell', 'cell_per_block',
+                    'bopt_param_nof', 'time_train_bopt_nof', 'time_predict_bopt_nof', 'score_bopt_nof']
 
     metrics_dict = {k:None for k in metrics_list}
     metrics = pd.DataFrame(columns=metrics_list)#, index=[0])
@@ -233,6 +234,22 @@ if __name__ == "__main__":
 
             print('Number of features selected were: ', num_features)
             print('Base Linear SVC score after f selection is:', score)
+
+            #BOpt without feature selection
+            t = time.time()
+            svc.C, svc.tol = bopt(svc, X_train, y_train, cv, n_calls, n_random_starts, n_points)
+            metrics_dict['bopt_param_nof'] = [svc.C, svc.tol]
+            svc.fit(X_train, y_train)
+            t2 = time.time()
+            time_train_bopt = round(t2 - t, 2)
+            metrics_dict['time_train_bopt_nof'] = time_train_bopt_nof
+
+            t = time.time()
+            score = svc.score(X_test, y_test)
+            t2 = time.time()
+            time_predict_bopt_nof = round(t2 - t, 2)
+            metrics_dict['time_predict_bopt_nof'] = time_predict_bopt_nof
+            metrics_dict['score_bopt_nof'] = round(score, 6)
 
             ######## Train and time bopt after feature selection ##################################
             t = time.time()
