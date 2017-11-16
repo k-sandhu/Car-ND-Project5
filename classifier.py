@@ -14,6 +14,7 @@ from sklearn.feature_selection import SelectFromModel
 from sklearn.pipeline import Pipeline
 import pandas as pd
 from utils import *
+from sklearn.calibration import CalibratedClassifierCV
 
 def get_data(sample_size):
     # Divide up into cars and notcars
@@ -67,13 +68,15 @@ def get_hog_features(img, orient, pix_per_cell, cell_per_block,
 # Define a function to extract features from a list of images
 # Have this function call bin_spatial() and color_hist()
 def extract_features(imgs, cspace='RGB', orient=9,
-                        pix_per_cell=8, cell_per_block=4, hog_channel=0):
+                        pix_per_cell=8, cell_per_block=4, hog_channel='ALL'):
     # Create a list to append feature vectors to
     features = []
     # Iterate through the list of images
     for file in imgs:
-        # Read in each one by one
-        image = mpimg.imread(file)
+        if isinstance(file, np.ndarray):
+            image = file
+        else: image = mpimg.imread(file) # Read in each one by one
+
         # apply color conversion if other than 'RGB'
         if cspace != 'RGB':
             if cspace == 'HSV':
@@ -126,7 +129,7 @@ def bopt(svc_base, X_train, y_train, cv, n_calls, n_random_starts, n_points):
 if __name__ == "__main__":
     # Reduce the sample size because HOG features are slow to compute
     # The quiz evaluator times out after 13s of CPU time
-    sample_size = 0
+    sample_size = 500
     max_count = None
 
     n_calls = 10
@@ -159,6 +162,7 @@ if __name__ == "__main__":
 
     for cspace in colorspace_options:
         hog_channel = 'ALL'
+        cspace='RGB'
         #for hog_channel in hog_channel_options:
         if hog_channel is 'ALL':
 
@@ -270,25 +274,29 @@ if __name__ == "__main__":
 """
 
             ################# cv after bopt ########################
-            X_scaler = StandardScaler()
             svc = LinearSVC(verbose=True, max_iter=2000)
             sfm = SelectFromModel(svc)
-            X_reduced = sfm.fit_transform(X, y)
+            X_reduced = sfm.fit_transform(scaled_X, y)
             svc.C, svc.tol = bopt(svc, X_reduced, y, cv, n_calls, n_random_starts, n_points)
             t = time.time()
 
-            estimators = [('StandardScaler', X_scaler), ('SelectFromModel', sfm), ('LinearSVC', svc)]
+            X_scaler = StandardScaler()
+            svc_opt = LinearSVC(verbose=True, max_iter=2000)
+            svc_opt.C, svc_opt.tot = svc.C, svc.tol
+            sfm = SelectFromModel(svc_opt)
+            cal_clf = CalibratedClassifierCV(base_estimator=svc_opt, method='sigmoid', cv=cv)
+
+            estimators = [('StandardScaler', X_scaler), ('SelectFromModel', sfm), ('LinearSVC', cal_clf)]
             pipe = Pipeline(estimators)
 
-            params = {}
-            grid = GridSearchCV(pipe, params, cv=cv, verbose=2, scoring='accuracy', refit=True, n_jobs=-1)
-            grid.fit(X, y)
+            #params = {}
+            pipe.fit(X, y)
             t2 = time.time()
             time_train_cv = round(t2 - t, 2)
             metrics_dict['time_train_cv'] = time_train_cv
 
             t = time.time()
-            score = grid.score(X, y)
+            score = pipe.score(X, y)
             t2 = time.time()
             time_predict_cv = round(t2 - t, 2)
             metrics_dict['time_predict_cv'] = time_predict_cv

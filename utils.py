@@ -44,7 +44,6 @@ def get_hog_features(img, orient, pix_per_cell, cell_per_block,
 def extract_features(image, cspace='RGB', orient=9,
                         pix_per_cell=8, cell_per_block=4, hog_channel='ALL'):
     # Create a list to append feature vectors to
-    features = []
     # apply color conversion if other than 'RGB'
     if cspace != 'RGB':
         if cspace == 'HSV':
@@ -71,9 +70,8 @@ def extract_features(image, cspace='RGB', orient=9,
         hog_features = get_hog_features(feature_image[:,:,hog_channel], orient,
                     pix_per_cell, cell_per_block, vis=False, feature_vec=True)
     # Append the new feature vector to the features list
-    features.append(hog_features)
     # Return list of feature vectors
-    return features
+    return hog_features
 
 def draw_boxes_info(image, current_data):
     """
