@@ -111,6 +111,7 @@ def bopt(svc_base, X_train, y_train, cv, n_calls, n_random_starts, n_points):
         svc_base.set_params(C=C, tol=tol)
         return -np.mean(cross_val_score(svc_base, X_train, y_train, cv=cv, n_jobs=-1, scoring="accuracy", verbose=2))
 
+    svc_base.verbose = False
     svc_space = [(1,6),            # C
                     (0.0001, 0.001)]          # tol
 
@@ -193,7 +194,7 @@ if __name__ == "__main__":
 
             ######## Train and time base model ##################################
             t = time.time()
-            svc = LinearSVC(verbose=True)
+            svc = LinearSVC(verbose=True, max_iter=-1)
             svc.fit(X_train, y_train)
             t2 = time.time()
             time_train_base = round(t2 - t, 2)
@@ -210,7 +211,7 @@ if __name__ == "__main__":
 
             ######## Train and time base after feature selection ##################################
             X_scaler = StandardScaler()
-            svc = LinearSVC(verbose=True)
+            svc = LinearSVC(verbose=2, max_iter=-1)
             sfm = SelectFromModel(svc)
             t = time.time()
             X_train_reduced = sfm.fit_transform(X_train, y_train)
