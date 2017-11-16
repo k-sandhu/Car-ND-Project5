@@ -74,7 +74,7 @@ class Cars():
             self.current_data["heat_map"][box[1]:box[3],box[0]:box[2],0] += 1
 
         self.current_data["heat_map"] = self.current_data["heat_map"]/np.max(self.current_data["heat_map"])
-        print(np.max(self.current_data["heat_map"]), np.mean(self.current_data["heat_map"]),np.std(self.current_data["heat_map"]))
+        #print(np.max(self.current_data["heat_map"]), np.mean(self.current_data["heat_map"]),np.std(self.current_data["heat_map"]))
 
 
     def get_heat_map(self):
@@ -85,6 +85,6 @@ class Cars():
         return self.current_data["heat_map"]
 
     def print_attr(self):
-        print(self.current_data["frame_num"])
-        print(len(self.current_data["locations"]))
+        #print(self.current_data["frame_num"])
+        #print(len(self.current_data["locations"]))
 

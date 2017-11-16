@@ -12,9 +12,9 @@ def get_boxes():
     """
     boxes = []
 
-    box_sizes = [256]
-    left_x_cords = [x for x in range(0,1280,12)]
-    top_y_cords =  [y for y in range(360,720,12)]
+    box_sizes = [128]
+    left_x_cords = [x for x in range(0,1280,24)]
+    top_y_cords =  [y for y in range(360,720,24)]
 
     for box_size in box_sizes:
         for x_cord in left_x_cords:
@@ -23,57 +23,6 @@ def get_boxes():
                     boxes.append([x_cord, y_cord, x_cord+box_size, y_cord+box_size])
 
     return boxes
-
-def get_hog_features(img, orient, pix_per_cell, cell_per_block,
-                        vis=False, feature_vec=True):
-    # Call with two outputs if vis==True
-    if vis == True:
-        features, hog_image = hog(img, orientations=orient, pixels_per_cell=(pix_per_cell, pix_per_cell),
-                                  cells_per_block=(cell_per_block, cell_per_block), transform_sqrt=True,
-                                  visualise=vis, feature_vector=feature_vec,block_norm='L2-Hys')
-        return features, hog_image
-    # Otherwise call with one output
-    else:
-        features = hog(img, orientations=orient, pixels_per_cell=(pix_per_cell, pix_per_cell),
-                       cells_per_block=(cell_per_block, cell_per_block), transform_sqrt=True,
-                       visualise=vis, feature_vector=feature_vec, block_norm='L2-Hys')
-        return features
-
-# Define a function to extract features from a list of images
-# Have this function call bin_spatial() and color_hist()
-def extract_features(image, cspace='RGB', orient=9,
-                        pix_per_cell=8, cell_per_block=4, hog_channel='ALL'):
-    # Create a list to append feature vectors to
-    features = []
-    # apply color conversion if other than 'RGB'
-    if cspace != 'RGB':
-        if cspace == 'HSV':
-            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-        elif cspace == 'LUV':
-            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2LUV)
-        elif cspace == 'HLS':
-            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
-        elif cspace == 'YUV':
-            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2YUV)
-        elif cspace == 'YCrCb':
-            feature_image = cv2.cvtColor(image, cv2.COLOR_RGB2YCrCb)
-    else: feature_image = np.copy(image)
-
-    # Call get_hog_features() with vis=False, feature_vec=True
-    if hog_channel == 'ALL':
-        hog_features = []
-        for channel in range(feature_image.shape[2]):
-            hog_features.append(get_hog_features(feature_image[:,:,channel],
-                                orient, pix_per_cell, cell_per_block,
-                                vis=False, feature_vec=True))
-        hog_features = np.ravel(hog_features)
-    else:
-        hog_features = get_hog_features(feature_image[:,:,hog_channel], orient,
-                    pix_per_cell, cell_per_block, vis=False, feature_vec=True)
-    # Append the new feature vector to the features list
-    features.append(hog_features)
-    # Return list of feature vectors
-    return features
 
 def draw_boxes_info(image, current_data):
     """
