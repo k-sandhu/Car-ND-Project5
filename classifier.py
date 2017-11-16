@@ -109,7 +109,7 @@ def bopt(svc_base, X_train, y_train, cv, n_calls, n_random_starts, n_points):
         C, tol= params
 
         svc_base.set_params(C=C, tol=tol)
-        return -np.mean(cross_val_score(svc_base, X_train, y_train, cv=cv, n_jobs=-1, scoring="accuracy", verbose=1))
+        return -np.mean(cross_val_score(svc_base, X_train, y_train, cv=cv, n_jobs=-1, scoring="accuracy", verbose=2))
 
     svc_space = [(1,6),            # C
                     (0.0001, 0.001)]          # tol
@@ -129,9 +129,9 @@ if __name__ == "__main__":
     sample_size = 0
     max_count = None
 
-    n_calls = 40
-    n_random_starts = 20
-    n_points = 1000
+    n_calls = 20
+    n_random_starts = 10
+    n_points = 100
     cv=25
 
     colorspace_options = ['RGB', 'HSV', 'LUV', 'HLS', 'YUV', 'YCrCb']
@@ -154,6 +154,8 @@ if __name__ == "__main__":
     metrics = pd.DataFrame(columns=metrics_list)#, index=[0])
 
     count = 0
+
+
     for cspace in colorspace_options:
         hog_channel = 'ALL'
         #for hog_channel in hog_channel_options:
@@ -190,7 +192,7 @@ if __name__ == "__main__":
 
             ######## Train and time base model ##################################
             t = time.time()
-            svc = LinearSVC()
+            svc = LinearSVC(verbose=True)
             svc.fit(X_train, y_train)
             t2 = time.time()
             time_train_base = round(t2 - t, 2)
@@ -207,7 +209,7 @@ if __name__ == "__main__":
 
             ######## Train and time base after feature selection ##################################
             X_scaler = StandardScaler()
-            svc = LinearSVC()
+            svc = LinearSVC(verbose=True)
             sfm = SelectFromModel(svc)
             t = time.time()
             X_train_reduced = sfm.fit_transform(X_train, y_train)
@@ -249,13 +251,18 @@ if __name__ == "__main__":
             metrics_dict['score_f_sel_bopt'] = round(score, 6)
 
             ################# cv after bopt ########################
+            X_scaler = StandardScaler()
+            svc = LinearSVC(verbose=True)
+            sfm = SelectFromModel(svc)
+            X_train_reduced = sfm.fit_transform(X_train, y_train)
+            svc.C, svc.tol = bopt(svc, X_train_reduced, y_train, cv, n_calls, n_random_starts, n_points)
             t = time.time()
 
             estimators = [('StandardScaler', X_scaler), ('SelectFromModel', sfm), ('LinearSVC', svc)]
             pipe = Pipeline(estimators)
 
             params = {}
-            grid = GridSearchCV(pipe, params, cv=cv, verbose=1, scoring='accuracy', refit=True, n_jobs=-1)
+            grid = GridSearchCV(pipe, params, cv=cv, verbose=2, scoring='accuracy', refit=True, n_jobs=-1)
             grid.fit(X_train, y_train)
             t2 = time.time()
             time_train_cv = round(t2 - t, 2)
@@ -268,7 +275,6 @@ if __name__ == "__main__":
             metrics_dict['time_predict_cv'] = time_predict_cv
 
             metrics_dict['score_f_sel_bopt_cv'] = round(score, 6)
-
             metrics = metrics.append(metrics_dict, ignore_index=True)
             print(metrics)
 
@@ -282,9 +288,8 @@ if __name__ == "__main__":
                     pass
                 joblib.dump(grid, ("grid-{0}-{1}.pkl").format(score, count+1))
 
-            if count%10 == 0:
-                metrics.to_csv("metrics.csv", columns=metrics_dict.keys(), index=False)
 
+            metrics.to_csv("metrics.csv", columns=metrics_dict.keys(), index=False)
             count+=1
 
     metrics.to_csv("metrics.csv", columns=metrics_dict.keys(), index=False)
