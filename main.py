@@ -68,7 +68,7 @@ if __name__ == "__main__":
     success, image = vidcap.read()
     frame_num = 1
     cars = Cars() # create the car object
-    model = joblib.load('svc.pkl') # load trained linear SVC from a .pkl file
+    model = joblib.load('grid-0.965-1.pkl') # load trained linear SVC from a .pkl file
 
     clean_output_folder(output_images_folder)  # deleted previous transformed images stored in the output folder
 

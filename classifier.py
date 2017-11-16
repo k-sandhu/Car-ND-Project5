@@ -132,7 +132,7 @@ if __name__ == "__main__":
 
     n_calls = 20
     n_random_starts = 10
-    n_points = 100
+    n_points = 1000
     cv=20
 
     colorspace_options = ['RGB', 'HSV', 'LUV', 'HLS', 'YUV', 'YCrCb']
