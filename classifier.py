@@ -273,7 +273,7 @@ if __name__ == "__main__":
             X_scaler = StandardScaler()
             svc = LinearSVC(verbose=True, max_iter=2000)
             sfm = SelectFromModel(svc)
-            X_train_reduced = sfm.fit_transform(X, y)
+            X_reduced = sfm.fit_transform(X, y)
             svc.C, svc.tol = bopt(svc, X_reduced, y, cv, n_calls, n_random_starts, n_points)
             t = time.time()
 
