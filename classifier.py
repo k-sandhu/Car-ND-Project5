@@ -194,7 +194,7 @@ if __name__ == "__main__":
 
             ######## Train and time base model ##################################
             t = time.time()
-            svc = LinearSVC(verbose=True, max_iter=-1)
+            svc = LinearSVC(verbose=True, max_iter=2000)
             svc.fit(X_train, y_train)
             t2 = time.time()
             time_train_base = round(t2 - t, 2)
@@ -211,7 +211,7 @@ if __name__ == "__main__":
 
             ######## Train and time base after feature selection ##################################
             X_scaler = StandardScaler()
-            svc = LinearSVC(verbose=2, max_iter=-1)
+            svc = LinearSVC(verbose=2, max_iter=2000)
             sfm = SelectFromModel(svc)
             t = time.time()
             X_train_reduced = sfm.fit_transform(X_train, y_train)
