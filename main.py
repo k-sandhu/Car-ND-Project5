@@ -17,7 +17,7 @@ def pipeline(image, cars, model, frame_num, heat_map='n'):
     sample_images = glob.glob('./data/test_images/*.jpg',recursive=True)
     image = mpimg.imread(sample_images[0])
     cars = Cars()
-
+    frame_num = 0
     pipeline(image, cars, model, 0, heat_map='y')
 
     :param image: Frame capture of the video
@@ -27,6 +27,7 @@ def pipeline(image, cars, model, frame_num, heat_map='n'):
 
     boxes = get_boxes() # Generate box coordinates for sliding window search
     locations = [] # list to track locations of cars
+    car_num = 0
     count = 0
 
     for box in reversed(boxes):
@@ -35,13 +36,14 @@ def pipeline(image, cars, model, frame_num, heat_map='n'):
         features = extract_features(section)
         is_car = model.predict(features)
 
-        if is_car:
+        if is_car == 1:
             locations.append(box)
+            car_num += 1
         count += 1
 
-        if count > 15:
-            break
-
+        #if count > 15:
+        #    break
+    print("Cars: ", car_num, "No cars:",count-car_num)
     current_data = cars.add_locations(frame_num, locations)
     image = draw_boxes_info(image, current_data)
 
@@ -68,12 +70,12 @@ if __name__ == "__main__":
     success, image = vidcap.read()
     frame_num = 1
     cars = Cars() # create the car object
-    model = joblib.load('grid-0.965-1.pkl') # load trained linear SVC from a .pkl file
+    model = joblib.load('./models/grid-0.965-1.pkl') # load trained linear SVC from a .pkl file
 
     clean_output_folder(output_images_folder)  # deleted previous transformed images stored in the output folder
 
     while frame_num < 250:
-        print('Frame Number: ', frame_num)  # Print out frame number
+        #print('Frame Number: ', frame_num)  # Print out frame number
 
         # Call to main pipeline
         image = pipeline(image, cars, model, frame_num)

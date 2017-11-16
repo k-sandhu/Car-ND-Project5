@@ -192,6 +192,7 @@ if __name__ == "__main__":
             print('Feature vector length:', f_vec_len)
             metrics_dict['f_vec_len'] = f_vec_len
 
+            """
             ######## Train and time base model ##################################
             t = time.time()
             svc = LinearSVC(verbose=True, max_iter=2000)
@@ -237,7 +238,7 @@ if __name__ == "__main__":
             print('Base Linear SVC score after f selection is:', score)
 
             #BOpt without feature selection
-            """t = time.time()
+            t = time.time()
             svc.C, svc.tol = bopt(svc, X_train, y_train, cv, n_calls, n_random_starts, n_points)
             metrics_dict['bopt_param_nof'] = [svc.C, svc.tol]
             svc.fit(X_train, y_train)
@@ -251,7 +252,7 @@ if __name__ == "__main__":
             time_predict_bopt_nof = round(t2 - t, 2)
             metrics_dict['time_predict_bopt_nof'] = time_predict_bopt_nof
             metrics_dict['score_bopt_nof'] = round(score, 6)
-"""
+
             ######## Train and time bopt after feature selection ##################################
             t = time.time()
             svc.C, svc.tol = bopt(svc, X_train_reduced, y_train, cv, n_calls, n_random_starts, n_points)
@@ -267,6 +268,7 @@ if __name__ == "__main__":
             time_predict_f_sel_bopt = round(t2 - t, 2)
             metrics_dict['time_predict_f_sel_bopt'] = time_predict_f_sel_bopt
             metrics_dict['score_f_sel_bopt'] = round(score, 6)
+"""
 
             ################# cv after bopt ########################
             X_scaler = StandardScaler()
@@ -281,13 +283,13 @@ if __name__ == "__main__":
 
             params = {}
             grid = GridSearchCV(pipe, params, cv=cv, verbose=2, scoring='accuracy', refit=True, n_jobs=-1)
-            grid.fit(X_train, y_train)
+            grid.fit(X, y)
             t2 = time.time()
             time_train_cv = round(t2 - t, 2)
             metrics_dict['time_train_cv'] = time_train_cv
 
             t = time.time()
-            score = grid.score(X_test, y_test)
+            score = grid.score(X, y)
             t2 = time.time()
             time_predict_cv = round(t2 - t, 2)
             metrics_dict['time_predict_cv'] = time_predict_cv

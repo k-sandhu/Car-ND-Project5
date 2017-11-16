@@ -12,7 +12,7 @@ def get_boxes():
     """
     boxes = []
 
-    box_sizes = [64]
+    box_sizes = [256]
     left_x_cords = [x for x in range(0,1280,12)]
     top_y_cords =  [y for y in range(360,720,12)]
 
@@ -42,7 +42,7 @@ def get_hog_features(img, orient, pix_per_cell, cell_per_block,
 # Define a function to extract features from a list of images
 # Have this function call bin_spatial() and color_hist()
 def extract_features(image, cspace='RGB', orient=9,
-                        pix_per_cell=8, cell_per_block=4, hog_channel=0):
+                        pix_per_cell=8, cell_per_block=4, hog_channel='ALL'):
     # Create a list to append feature vectors to
     features = []
     # apply color conversion if other than 'RGB'
@@ -89,7 +89,7 @@ def draw_boxes_info(image, current_data):
     font_scale = .4
     font_thickness = 1
 
-    locations = current_data["current_locations"] #returns x1, y1, x2, y2
+    locations = current_data["locations"] #returns x1, y1, x2, y2
     frame_num = "Frame Number: " + str(current_data["frame_num"])
 
     for box in locations:
