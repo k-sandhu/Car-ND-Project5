@@ -127,8 +127,8 @@ def bopt(svc_base, X_train, y_train, cv, n_calls, n_random_starts, n_points):
 if __name__ == "__main__":
     # Reduce the sample size because HOG features are slow to compute
     # The quiz evaluator times out after 13s of CPU time
-    sample_size = 500
-    max_count = 1
+    sample_size = 0
+    max_count = None
 
     n_calls = 20
     n_random_starts = 10
@@ -270,7 +270,7 @@ if __name__ == "__main__":
 
             ################# cv after bopt ########################
             X_scaler = StandardScaler()
-            svc = LinearSVC(verbose=True)
+            svc = LinearSVC(verbose=True, max_iter=2000)
             sfm = SelectFromModel(svc)
             X_train_reduced = sfm.fit_transform(X_train, y_train)
             svc.C, svc.tol = bopt(svc, X_train_reduced, y_train, cv, n_calls, n_random_starts, n_points)
